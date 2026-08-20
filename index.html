@@ -1,0 +1,1332 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+  #malla-root, #malla-root * { box-sizing: border-box; font-family: 'DM Sans', sans-serif; }
+  #malla-root { background: #EDEAE5; color: #131E29; min-height: 100vh; padding-bottom: 40px; }
+  #malla-root button, #malla-root select { font-family: inherit; }
+  #malla-root button:focus-visible, #malla-root select:focus-visible { outline: 2px solid #CE0019; outline-offset: 2px; }
+
+  .m-header { background: #131E29; color: #FFFFFF; padding: 32px 24px 24px; }
+  .m-header-inner { max-width: none; margin: 0; }
+  .m-eyebrow { font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: #D6D1CA; font-weight: 700; margin-bottom: 10px; }
+  .m-title { font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: clamp(24px, 3.4vw, 36px); margin: 0; letter-spacing: -0.01em; }
+  .m-subtitle { margin-top: 10px; font-size: 14.5px; color: #B9C2CB; max-width: 780px; line-height: 1.5; }
+  .m-logo-lockup { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .m-logo-text { display: flex; flex-direction: column; line-height: 1.3; border-left: 1px solid rgba(214,209,202,0.5); padding-left: 12px; }
+  .m-logo-uni { font-size: 14px; font-weight: 700; color: #FFFFFF; }
+  .m-logo-fac { font-size: 12px; font-weight: 500; color: #D6D1CA; }
+
+  .m-controlbar { background: #243746; border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .m-controlbar-inner { max-width: none; margin: 0; padding: 14px 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 20px; }
+  .m-mencion-label { display: flex; align-items: center; gap: 10px; color: #E7E2DC; font-size: 13px; font-weight: 600; }
+  .m-select { background: #FFFFFF; color: #131E29; border: none; border-radius: 6px; padding: 8px 12px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .m-malla-tabs { display: flex; gap: 4px; background: rgba(255,255,255,0.08); padding: 3px; border-radius: 8px; }
+  .m-malla-tab { font-size: 12px; font-weight: 600; background: transparent; border: none; color: #B9C2CB; padding: 6px 10px; border-radius: 6px; cursor: pointer; }
+  .m-malla-tab.active { background: #CE0019; color: #FFFFFF; }
+  .m-progress-wrap { flex: 1 1 240px; min-width: 200px; max-width: 380px; }
+  .m-progress-labelrow { display: flex; justify-content: space-between; font-size: 12px; color: #B9C2CB; margin-bottom: 6px; }
+  .m-progress-pct { font-weight: 700; color: #CE0019; }
+  .m-progress-track { height: 8px; background: rgba(255,255,255,0.14); border-radius: 999px; overflow: hidden; }
+  .m-progress-fill { height: 100%; background: linear-gradient(90deg, #CE0019, #CA3625); border-radius: 999px; transition: width .4s ease; }
+  .m-old-counter { font-size: 12.5px; color: #B9C2CB; }
+  .m-pdf-btn { margin-left: auto; background: #CE0019; border: none; color: #FFFFFF; font-size: 13px; font-weight: 700; padding: 8px 14px; border-radius: 6px; cursor: pointer; }
+  .m-pdf-btn:disabled { opacity: 0.6; cursor: wait; }
+  .m-reset-btn { background: transparent; border: 1px solid rgba(255,255,255,0.3); color: #E7E2DC; font-size: 13px; padding: 8px 14px; border-radius: 6px; cursor: pointer; }
+
+  .m-legend { max-width: none; margin: 14px 0 0; padding: 0 24px; display: flex; gap: 18px; flex-wrap: wrap; align-items: center; font-size: 12px; color: #415364; }
+  .m-legend-item { display: flex; align-items: center; gap: 6px; }
+  .m-legend-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .m-toggle-old-btn { margin-left: auto; background: #E7E2DC; border: 1px solid #D6D1CA; border-radius: 6px; padding: 5px 12px; font-size: 12px; font-weight: 600; color: #131E29; cursor: pointer; }
+
+  .m-split { max-width: none; margin: 16px 0 0; padding: 0 24px; display: flex; gap: 20px; align-items: flex-start; }
+  .m-split.compact { padding: 0 6px 0 6px; max-width: 100%; }
+  .m-old-panel { flex: 0 0 330px; max-width: 330px; background: #E7E2DC; border: 1px solid #D6D1CA; border-radius: 10px; padding: 16px 14px; }
+  .m-new-panel { flex: 1 1 auto; min-width: 0; }
+  .m-panel-heading { font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 18px; color: #131E29; margin-bottom: 12px; }
+  .m-panel-heading-sub { font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 14px; color: #415364; }
+  .m-fallback-note { font-size: 11px; color: #243746; background: #E7E2DC; border: 1px solid #D6D1CA; border-radius: 6px; padding: 6px 8px; margin-bottom: 10px; line-height: 1.4; }
+  .m-old-groups { display: flex; flex-direction: column; gap: 12px; max-height: 900px; overflow-y: auto; padding-right: 4px; }
+  .m-old-group { display: flex; flex-direction: column; gap: 6px; }
+  .m-old-group-header { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 700; color: #243746; text-transform: uppercase; letter-spacing: 0.04em; }
+  .m-old-group-header-right { display: flex; align-items: center; gap: 8px; }
+  .m-mark-group-btn { text-transform: none; letter-spacing: normal; font-size: 10.5px; font-weight: 600; background: #FFFFFF; border: 1px solid #D6D1CA; color: #415364; padding: 2px 8px; border-radius: 999px; cursor: pointer; }
+  .m-mark-group-btn:hover { background: #E7E2DC; }
+  .m-panel-heading-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+  .m-panel-heading-row .m-panel-heading { margin-bottom: 0; }
+  .m-old-panel-instructions { font-size: 11.5px; color: #758592; margin: 4px 0 12px; line-height: 1.4; }
+  .m-mark-all-group { display: flex; gap: 6px; }
+  .m-mark-all-btn { font-size: 12px; font-weight: 700; background: #243746; border: none; color: #FFFFFF; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
+  .m-mark-all-btn:hover { background: #131E29; }
+  .m-mark-all-btn.secondary { background: #FFFFFF; border: 1px solid #D6D1CA; color: #415364; }
+  .m-mark-all-btn.secondary:hover { background: #E7E2DC; }
+  .m-mark-all-btn:disabled { opacity: 0.4; cursor: default; }
+  .m-mark-all-btn:disabled:hover { background: inherit; }
+  .m-old-group-count { color: #758592; font-weight: 500; }
+  .m-old-row { display: flex; gap: 10px; align-items: flex-start; text-align: left; border: 1px solid; border-radius: 8px; padding: 8px 10px; cursor: pointer; transition: background .12s ease; width: 100%; background: #FFFFFF; border-color: #D6D1CA; }
+  .m-old-row.checked { background: #E9EDF0; border-color: #415364; }
+  .m-old-checkbox { flex-shrink: 0; width: 16px; height: 16px; border-radius: 4px; border: 1.5px solid #415364; color: #fff; font-size: 11px; display: flex; align-items: center; justify-content: center; margin-top: 1px; background: transparent; }
+  .m-old-row.checked .m-old-checkbox { background: #415364; }
+  .m-old-row-text { display: flex; flex-direction: column; gap: 1px; }
+  .m-old-row-name { font-size: 12.5px; font-weight: 600; color: #131E29; line-height: 1.3; }
+  .m-old-row-meta { font-size: 10.5px; color: #758592; }
+  .m-old-row-note { font-size: 10px; color: #758592; font-style: italic; }
+
+  .m-grid-scroll { overflow-x: auto; padding-bottom: 10px; border: 1px solid #D6D1CA; border-radius: 10px; background: #FFFFFF; }
+  .m-grid-scroll::-webkit-scrollbar { height: 10px; }
+  .m-grid-scroll::-webkit-scrollbar-thumb { background: #D6D1CA; border-radius: 6px; }
+  .m-grid-table { display: grid; grid-auto-rows: min-content; gap: 6px; padding: 10px; }
+  .m-grid-corner { position: sticky; left: 0; background: #FFFFFF; z-index: 2; }
+  .m-grid-sem-header { font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 13px; color: #131E29; text-align: center; padding: 6px 4px; border-bottom: 2px solid #CE0019; }
+  .m-grid-sem-header.narrow { writing-mode: vertical-rl; text-orientation: mixed; font-size: 11px; padding: 4px 2px; white-space: nowrap; }
+  .m-grid-track-label { position: sticky; left: 0; background: #E7E2DC; z-index: 1; font-size: 11px; font-weight: 700; color: #415364; display: flex; flex-direction: column; justify-content: center; padding: 6px 8px; border-radius: 6px; line-height: 1.25; }
+  .m-grid-track-sublabel { font-size: 9.5px; font-weight: 500; color: #758592; margin-top: 2px; }
+  .m-grid-section-header { grid-column: 1 / -1; font-size: 11px; font-weight: 700; color: #131E29; text-transform: uppercase; letter-spacing: 0.05em; padding: 10px 8px 2px; border-top: 1px solid #D6D1CA; margin-top: 4px; }
+  .m-grid-cell { display: flex; flex-direction: column; gap: 6px; align-items: stretch; min-height: 60px; }
+  .m-grid-card { width: 100%; text-align: left; border: 1px solid #D6D1CA; border-radius: 7px; padding: 6px 7px; display: flex; flex-direction: column; justify-content: space-between; gap: 2px; }
+  .m-grid-card-spacer { width: 100%; min-height: 46px; visibility: hidden; }
+  .m-grid-card.narrow { writing-mode: vertical-rl; text-orientation: mixed; align-items: center; gap: 6px; padding: 8px 4px; white-space: nowrap; }
+  .m-grid-card.narrow .m-grid-card-name { font-size: 10.5px; writing-mode: vertical-rl; text-orientation: mixed; }
+  .m-grid-card.narrow .m-status-pill { writing-mode: horizontal-tb; }
+  .m-grid-card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 4px; }
+  .m-grid-card-name { font-size: 11px; font-weight: 600; line-height: 1.22; color: #131E29; }
+  .m-grid-card-specname { font-size: 9px; font-weight: 500; color: #415364; }
+  .m-grid-card-note { font-size: 9.5px; color: #758592; font-style: italic; }
+  .m-grid-card-source { font-size: 9.5px; color: #415364; font-weight: 600; }
+  .m-status-pill { flex-shrink: 0; font-size: 9.5px; font-weight: 700; width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid; display: flex; align-items: center; justify-content: center; }
+  .m-grid-card-meta { display: flex; justify-content: flex-end; font-size: 9.5px; color: #758592; }
+
+  .m-grid-total-label { position: sticky; left: 0; background: #243746; color: #FFFFFF; z-index: 1; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; border-radius: 6px; margin-top: 4px; }
+  .m-grid-total-grand { font-size: 13px; font-weight: 700; }
+  .m-grid-total-cell { background: #243746; color: #FFFFFF; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; border-radius: 6px; margin-top: 4px; }
+  .m-grid-done-label { position: sticky; left: 0; background: #E7E2DC; color: #131E29; z-index: 1; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; border-radius: 6px; border: 1px solid #D6D1CA; }
+  .m-grid-done-grand { font-size: 13px; font-weight: 700; }
+  .m-grid-done-cell { background: #F3F1EE; color: #415364; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; border-radius: 6px; border: 1px solid #D6D1CA; }
+  .m-grid-done-cell.complete { background: #E9EDF0; color: #131E29; border-color: #758592; }
+
+  .m-footer { max-width: none; margin: 20px 0 0; padding: 0 24px; font-size: 11.5px; color: #758592; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  /* ---------- Documento imprimible vertical (solo malla nueva, para PDF) ---------- */
+  #malla-print-container, #malla-print-container * { box-sizing: border-box; font-family: 'DM Sans', sans-serif; }
+  .p-doc { padding: 28px 26px; color: #131E29; }
+  .p-doc-header { border-bottom: 2px solid #CE0019; padding-bottom: 14px; margin-bottom: 18px; }
+  .p-doc-eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #415364; font-weight: 700; }
+  .p-doc-title { font-size: 24px; font-weight: 700; margin-top: 4px; }
+  .p-doc-sub { font-size: 12.5px; color: #415364; margin-top: 4px; font-weight: 600; }
+  .p-section { margin-bottom: 14px; break-inside: avoid; }
+  .p-section-header { display: flex; justify-content: space-between; background: #243746; color: #FFFFFF; font-weight: 700; font-size: 13px; padding: 6px 10px; border-radius: 6px 6px 0 0; }
+  .p-row { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border: 1px solid #D6D1CA; border-top: none; font-size: 12px; }
+  .p-row:last-child { border-radius: 0 0 6px 6px; }
+  .p-status-dot { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid; flex-shrink: 0; }
+  .p-name { flex: 1 1 auto; font-weight: 600; }
+  .p-source { font-weight: 500; color: #415364; font-style: italic; font-size: 11px; }
+  .p-cred { flex-shrink: 0; color: #758592; font-weight: 600; font-size: 11px; }
+
+  @media (max-width: 980px) {
+    .m-split { flex-direction: column !important; }
+    .m-split > div:first-child { max-width: 100% !important; }
+  }
+</style>
+
+<div id="malla-root"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+(function () {
+  /* ============================================================
+     DATOS — mismos que la versión anterior (React)
+     ============================================================ */
+  const TRACKS = [
+    { id: "basicas", label: "Ciencias Básicas y Cuantitativas" },
+    { id: "analytics", label: "Data Analytics, Econometría e IA" },
+    { id: "discA", label: "Disciplinar Mención — Línea 1 / Capstone" },
+    { id: "discB", label: "Disciplinar Económica / Mención — Línea 2" },
+    { id: "electivos1", label: "Electivo de Especialidad — Línea 1" },
+    { id: "electivos2", label: "Electivo de Especialidad — Línea 2" },
+    { id: "empresarial", label: "Formación Empresarial" },
+    { id: "contder", label: "Contabilidad, Práctica y Derecho" },
+    { id: "habilidades", label: "Habilidades Transversales" },
+    { id: "ingles", label: "Inglés / Form. Complementaria" },
+    { id: "peg", label: "Formación General (PEG)" },
+    { id: "teologia", label: "Teología" },
+    { id: "minor", label: "Interdisciplinar (Minor)" },
+  ];
+
+  // Agrupación visual de filas, según la estructura oficial:
+  // FORMACION DISCIPLINAR (Ciencias Básicas y Cuantitativas + Disciplinar
+  // Específica, esta última incluye mención, electivos, formación empresarial,
+  // contabilidad, práctica y derecho) · HABILIDADES TRANSVERSALES (incl. Inglés)
+  // · FORMACION GENERAL (PEG + Teología) · FORMACION INTERDISCIPLINAR (Minor)
+  const TRACK_GROUP = {
+    basicas: "basicas",
+    analytics: "basicas",
+    discA: "discipEspecifica",
+    discB: "discipEspecifica",
+    electivos1: "discipEspecifica",
+    electivos2: "discipEspecifica",
+    empresarial: "discipEspecifica",
+    contder: "discipEspecifica",
+    habilidades: "habilidades",
+    ingles: "habilidades",
+    peg: "formaciongeneral",
+    teologia: "formaciongeneral",
+    minor: "forminterdisc",
+  };
+
+  const GROUPS = [
+    { id: "basicas", label: "CIENCIAS BÁSICAS Y CUANTITATIVAS" },
+    { id: "discipEspecifica", label: "DISCIPLINAR ESPECÍFICA" },
+    { id: "habilidades", label: "HABILIDADES TRANSVERSALES" },
+    { id: "formaciongeneral", label: "FORMACIÓN GENERAL" },
+    { id: "forminterdisc", label: "FORMACIÓN INTERDISCIPLINAR" },
+  ];
+
+  const PRACTICA_OPERATIVA = { id: "practicaop", name: "Práctica Operativa", cred: 6, track: "contder" };
+  const EXAMEN_GRADO = { id: "examengrado", name: "Examen de Grado", cred: 9, track: "contder" };
+
+  const CICLO_BASICO = {
+    1: [
+      { id: "calc1", name: "Cálculo 1", cred: 5, track: "basicas" },
+      { id: "introecon", name: "Introducción a la Economía", cred: 5, track: "discB" },
+      { id: "management", name: "Management", cred: 5, track: "empresarial" },
+      { id: "progia", name: "Programación con Inteligencia Artificial", cred: 5, track: "analytics" },
+      { id: "propmarca", name: "Propósito y Marca Personal", cred: 4, track: "habilidades" },
+      { id: "antropo", name: "Antropología y Economía", cred: 4, track: "peg" },
+    ],
+    2: [
+      { id: "calc2", name: "Cálculo 2", cred: 5, track: "basicas" },
+      { id: "microecon", name: "Microeconomía", cred: 5, track: "discB" },
+      { id: "contab1", name: "Contabilidad 1", cred: 5, track: "empresarial" },
+      { id: "evbasdat", name: "Evidencia Basada en Datos", cred: 5, track: "analytics" },
+      { id: "penscrit", name: "Pensamiento Crítico", cred: 4, track: "habilidades" },
+      { id: "feyrazon", name: "Fe y Razón", cred: 3, track: "peg" },
+    ],
+    3: [
+      { id: "algebra", name: "Álgebra Lineal", cred: 5, track: "basicas" },
+      { id: "probdat", name: "Probabilidad y Datos para Decisiones", cred: 5, track: "analytics" },
+      { id: "mktg1", name: "Marketing", cred: 5, track: "empresarial" },
+      { id: "macroecon", name: "Macroeconomía", cred: 5, track: "discB" },
+      { id: "storytelling", name: "Storytelling", cred: 4, track: "habilidades" },
+      { id: "grandeslibros", name: "Grandes Libros", cred: 3, track: "peg", note: "(PEG 1)" },
+      { id: "minor1", name: "Minor 1", cred: 4, track: "minor" },
+    ],
+    4: [
+      { id: "optim", name: "Optimización", cred: 5, track: "basicas" },
+      { id: "inferpred", name: "Inferencia y Predicción con Datos", cred: 5, track: "analytics" },
+      { id: "finanzas", name: "Finanzas", cred: 5, track: "empresarial" },
+      { id: "topecon", name: "Tópicos de Economía para Organizaciones", cred: 5, track: "discB" },
+      { id: "penglobal", name: "Pensamiento Global", cred: 4, track: "habilidades" },
+      { id: "teologia", name: "Teología", cred: 3, track: "teologia" },
+      { id: "minor2", name: "Minor 2", cred: 4, track: "minor" },
+    ],
+  };
+  const CICLO_ESP_COMUN = {
+    5: [
+      { id: "contab2", name: "Contabilidad 2", cred: 5, track: "contder" },
+      { id: "econometria", name: "Econometría", cred: 5, track: "analytics" },
+      { id: "histpenseco", name: "Historia del Pensamiento Económico", cred: 3, track: "peg" },
+      { id: "minor3", name: "Minor 3", cred: 4, track: "minor" },
+    ],
+    6: [
+      { id: "iaaplicada", name: "Inteligencia Artificial Aplicada", cred: 5, track: "analytics" },
+      { id: "estrategnego", name: "Estrategia para los Negocios", cred: 5, track: "empresarial" },
+      { id: "ingles1", name: "Inglés Profesional 1", cred: 5, track: "ingles" },
+      { id: "datastory", name: "Data Storytelling", cred: 4, track: "habilidades" },
+    ],
+    7: [
+      { id: "electivo1", name: "Electivo de Especialidad 1", cred: 5, track: "electivos1" },
+      { id: "electivo2", name: "Electivo de Especialidad 2", cred: 5, track: "electivos2" },
+      { id: "actualidadint", name: "Actualidad Internacional", cred: 3, track: "peg" },
+      { id: "ingles2", name: "Inglés Profesional 2", cred: 5, track: "ingles" },
+    ],
+    8: [
+      { id: "electivo3", name: "Electivo de Especialidad 3", cred: 5, track: "electivos1" },
+      { id: "electivo4", name: "Electivo de Especialidad 4", cred: 5, track: "electivos2" },
+      { id: "eticaempresa", name: "Ética de la Empresa", cred: 4, track: "peg" },
+    ],
+    9: [
+      { id: "derechoempresa", name: "Derecho de la Empresa", cred: 5, track: "contder" },
+      { id: "liderazgo", name: "Liderazgo y Desarrollo Profesional", cred: 5, track: "empresarial" },
+      { id: "penssocial", name: "Pensamiento Social Cristiano", cred: 3, track: "peg" },
+      { id: "actformcomp", name: "Actividades de Formación Complementaria", cred: 3, track: "ingles" },
+      { id: "insercionlab", name: "Inserción Laboral", cred: 3, track: "habilidades" },
+    ],
+    10: [
+      { id: "practicaprof", name: "Práctica Profesional", cred: 21, track: "contder" },
+      { id: "mentoring", name: "Mentoring Profesional", cred: 2, track: "empresarial" },
+      { id: "negociacion", name: "Negociación y Trabajo en Equipo", cred: 5, track: "discB" },
+    ],
+  };
+
+  const MENCIONES = {
+    macrofinanzas: {
+      label: "Macroeconomía y Finanzas",
+      5: [
+        { id: "mf_finscorp", name: "Finanzas Corporativas", cred: 5, track: "discA" },
+        { id: "mf_macrorealcrec", name: "Macroeconomía Real y Crecimiento", cred: 5, track: "discB", note: "(*) Cohorte 2025: cursar Política Económica en su reemplazo" },
+      ],
+      6: [
+        { id: "mf_metcuant", name: "Métodos Cuantitativos para Macroeconomía y Finanzas", cred: 5, track: "discA" },
+        { id: "mf_teorinv", name: "Teoría de Inversiones", cred: 5, track: "discB" },
+      ],
+      7: [
+        { id: "mf_bancaciclos", name: "Banca y Ciclos Económicos", cred: 5, track: "discA" },
+        { id: "mf_macromon", name: "Macroeconomía Monetaria y Fluctuaciones", cred: 5, track: "discB" },
+      ],
+      8: [
+        { id: "mf_analfin", name: "Análisis Financiero para la Toma de Decisiones", cred: 5, track: "discA" },
+        { id: "mf_finintl", name: "Finanzas Internacionales y Derivados", cred: 5, track: "discB" },
+      ],
+      9: [{ id: "mf_capstone", name: "Capstone Macroeconomía y Finanzas", cred: 7, track: "discA" }],
+    },
+    economia: {
+      label: "Economía",
+      5: [
+        { id: "ec_equilibrio", name: "Equilibrio General y Teoría del Bienestar", cred: 5, track: "discA" },
+        { id: "ec_orgindustrial", name: "Organización Industrial", cred: 5, track: "discB" },
+      ],
+      6: [
+        { id: "ec_infcausal", name: "Inferencia Causal y Microeconomía Aplicada", cred: 5, track: "discA" },
+        { id: "ec_topmicro", name: "Tópicos en Microeconomía Aplicada", cred: 5, track: "discB" },
+      ],
+      7: [
+        { id: "ec_competencia", name: "Competencia y Mercados", cred: 5, track: "discA" },
+        { id: "ec_macrorealcrec", name: "Macroeconomía Real y Crecimiento", cred: 5, track: "discB", note: "(*) Cohorte 2025: cursar Banca y Ciclos Económicos en su reemplazo" },
+      ],
+      8: [
+        { id: "ec_macromon", name: "Macroeconomía Monetaria y Fluctuaciones", cred: 5, track: "discA" },
+        { id: "ec_politeco", name: "Política Económica", cred: 5, track: "discB" },
+      ],
+      9: [{ id: "ec_capstone", name: "Capstone Economía", cred: 7, track: "discA" }],
+    },
+    marketing: {
+      label: "Marketing y Data Analytics",
+      5: [
+        { id: "mk_mktdigital", name: "Marketing Digital", cred: 5, track: "discA" },
+        { id: "mk_research", name: "Marketing Research", cred: 5, track: "discB" },
+      ],
+      6: [
+        { id: "mk_estratventas", name: "Estrategia de Ventas", cred: 5, track: "discA" },
+        { id: "mk_metcuant", name: "Métodos Cuantitativos para Marketing", cred: 5, track: "discB" },
+      ],
+      7: [
+        { id: "mk_consumerbeh", name: "Consumer Behavior", cred: 5, track: "discA" },
+        { id: "mk_modelosdec", name: "Modelos de Decisión", cred: 5, track: "discB" },
+      ],
+      8: [
+        { id: "mk_comintegradas", name: "Comunicaciones Integradas de Marketing", cred: 5, track: "discA" },
+        { id: "mk_estratprecios", name: "Estrategia de Precios", cred: 5, track: "discB" },
+      ],
+      9: [{ id: "mk_capstone", name: "Capstone Marketing", cred: 7, track: "discA" }],
+    },
+    estrategianegocios: {
+      label: "Estrategia y Negocios",
+      5: [
+        { id: "en_innovacion", name: "Innovación y Emprendimiento", cred: 5, track: "discA" },
+        { id: "en_poderinfl", name: "Poder e Influencia Organizacional", cred: 5, track: "discB" },
+      ],
+      6: [
+        { id: "en_gestionop", name: "Gestión de Operaciones", cred: 5, track: "discA" },
+        { id: "en_gestiontal", name: "Gestión del Talento", cred: 5, track: "discB" },
+      ],
+      7: [
+        { id: "en_disenocambio", name: "Diseño y Cambio Organizacional", cred: 5, track: "discA" },
+        { id: "en_orgdigital", name: "Organización Digital", cred: 5, track: "discB" },
+      ],
+      8: [
+        { id: "en_controlestrat", name: "Control Estratégico", cred: 5, track: "discA" },
+        { id: "en_estratglobal", name: "Estrategia Global", cred: 5, track: "discB" },
+      ],
+      9: [{ id: "en_capstone", name: "Capstone Estrategia", cred: 7, track: "discA" }],
+    },
+  };
+
+  const MENCION_KEYS = Object.keys(MENCIONES);
+  const GENERIC_ELECTIVE_IDS = ["electivo1", "electivo2", "electivo3", "electivo4"];
+
+  // Semestres recomendados para la cohorte 2025 (transición), a modo de nota
+  // informativa — no mueve las tarjetas de la grilla, solo lo documenta.
+  // Semestres recomendados por cohorte de transición, indexados por el id
+  // del curso en la malla nueva. Se muestran como nota bajo la tarjeta
+  // correspondiente. requiereNoConvalidado=true → solo aplica si el alumno
+  // no tiene el curso ya convalidado desde la malla actual (cursos comunes).
+  const TRANSICION_BY_ID = {
+    // --- Economía ---
+    ec_macrorealcrec: { rec2025: 8 },
+    ec_topmicro: { rec2025: 7 },
+    ec_competencia: { rec2025: 6 },
+    ec_macromon: { rec2025: 6 },
+    // --- Estrategia y Negocios ---
+    en_orgdigital: { rec2025: 8 },
+    en_poderinfl: { rec2025: 7 },
+    en_controlestrat: { rec2025: 7 },
+    en_disenocambio: { rec2025: 6 },
+    en_gestionop: { rec2025: 5 },
+    // --- Macroeconomía y Finanzas ---
+    mf_bancaciclos: { rec2025: 8 },
+    mf_macrorealcrec: { rec2025: 7 },
+    mf_teorinv: { rec2025: 7 },
+    mf_macromon: { rec2025: 6 },
+    mf_analfin: { rec2025: 5 },
+    mf_finscorp: { rec2025: 4 },
+    // --- Marketing y Data Analytics ---
+    mk_consumerbeh: { rec2025: 8 },
+    mk_research: { rec2025: 7 },
+    mk_mktdigital: { rec2025: 6 },
+    mk_estratventas: { rec2025: 5 },
+    mk_comintegradas: { rec2025: 5 },
+    // --- Cursos comunes (solo aplica si aún no está convalidado) ---
+    storytelling: { rec2025: 7, rec2026: 6, requiereNoConvalidado: true },
+    teologia: { rec2025: 7, rec2026: 6, requiereNoConvalidado: true },
+    minor3: { rec2025: 7, requiereNoConvalidado: true },
+    minor2: { rec2025: 6, requiereNoConvalidado: true },
+    penglobal: { rec2025: 6, requiereNoConvalidado: true },
+    propmarca: { rec2025: 5, rec2026: 3, requiereNoConvalidado: true },
+    mktg1: { rec2025: 4, requiereNoConvalidado: true },
+    macroecon: { rec2025: 4, requiereNoConvalidado: true },
+    finanzas: { rec2025: 3, requiereNoConvalidado: true },
+    algebra: { rec2026: 2, requiereNoConvalidado: true },
+    contab2: { rec2025: 2, rec2026: 2, requiereNoConvalidado: true },
+    topecon: { rec2025: 3, requiereNoConvalidado: true },
+    grandeslibros: { rec2026: 1, requiereNoConvalidado: true },
+    estrategnego: { rec2025: 5 },
+    electivo3: { rec2025: { macrofinanzas: 8, economia: 3, marketing: 3, estrategianegocios: 3 }, requiereNoConvalidado: true },
+    electivo1: { rec2025: { macrofinanzas: 5, economia: 6, marketing: 6, estrategianegocios: 6 }, requiereNoConvalidado: true },
+    electivo2: { rec2025: { macrofinanzas: 6, economia: 8, marketing: 8, estrategianegocios: 8 }, rec2026: 8, requiereNoConvalidado: true },
+    electivo4: { rec2025: 3, rec2026: 1, requiereNoConvalidado: true },
+    progia: { rec2026: 3, requiereNoConvalidado: true },
+    feyrazon: { rec2026: 4, requiereNoConvalidado: true },
+    evbasdat: { rec2026: 5, requiereNoConvalidado: true },
+    iaaplicada: { rec2025: 8, rec2026: 7, requiereNoConvalidado: true },
+    datastory: { rec2025: 8, rec2026: 8, requiereNoConvalidado: true },
+  };
+
+  // Numeración oficial "Especialización I..VIII": impares = línea discA, pares = línea discB
+  const SPEC_NUMBER_MAP = {
+    5: { discA: 1, discB: 2 },
+    6: { discA: 3, discB: 4 },
+    7: { discA: 5, discB: 6 },
+    8: { discA: 7, discB: 8 },
+  };
+
+  const OLD_MALLA = {
+    I: [
+      { id: "old_calc1", name: "Cálculo I", code: "MAD1104", cred: 5, target: "calc1" },
+      { id: "old_contab1", name: "Contabilidad I", code: "ADM1108", cred: 5, target: "contab1" },
+      { id: "old_da1", name: "Data Analytics I", code: "ADM1106", cred: 5, target: { byMencion: { macrofinanzas: "electivo4" }, default: "electivo3" } },
+      { id: "old_introecon", name: "Introducción a la Economía", code: "ADM1107", cred: 5, target: "introecon" },
+      { id: "old_fundempr", name: "Fund. del Emprend. y la Innovación", code: "ADM1010", cred: 5, target: "management" },
+      { id: "old_penscrit", name: "Pensamiento Crítico en Economía", code: "ADM1109", cred: 5, target: "penscrit" },
+    ],
+    II: [
+      { id: "old_algebra", name: "Álgebra Lineal", code: "MAD1210", cred: 5, target: "algebra" },
+      { id: "old_antropo", name: "Antropología", code: "ADM1801", cred: 3, target: "antropo" },
+      { id: "old_calc2", name: "Cálculo II", code: "MAD1201", cred: 5, target: "calc2" },
+      { id: "old_contab2", name: "Contabilidad II", code: "ADM1204", cred: 5, target: "contab2" },
+      { id: "old_ingles1", name: "Inglés I", code: "ADM1012", cred: 3, target: "certificacion", note: "Junto con Inglés II, en conjunto acreditan nivel B1" },
+      { id: "old_micro1", name: "Introducción a la Microeconomía", code: "ADM1203", cred: 5, target: "microecon" },
+      { id: "old_peg1", name: "PEG 1", code: "—", cred: 3, target: "grandeslibros" },
+    ],
+    III: [
+      { id: "old_teo1", name: "Teología I", code: "FRM1100", cred: 3, target: "feyrazon" },
+      { id: "old_analfin", name: "Análisis Financiero", code: "ADM2130", cred: 5, target: "finanzas" },
+      { id: "old_ingles2", name: "Inglés II", code: "ADM2013", cred: 3, target: "certificacion", note: "Junto con Inglés I, en conjunto acreditan nivel B1" },
+      { id: "old_optim", name: "Optimización", code: "ADM2111", cred: 5, target: "optim" },
+      { id: "old_estad1", name: "Estadísticas I", code: "ADM2100", cred: 5, target: "probdat" },
+      { id: "old_da2", name: "Data Analytics II", code: "ADM2122", cred: 5, target: "progia" },
+      { id: "old_minor1", name: "Minor I", code: "MINOR1", cred: 4, target: "minor1" },
+    ],
+    IV: [
+      {
+        id: "old_valoracion",
+        name: "Valoración de Empresas y Proyectos",
+        code: "ADM2250",
+        cred: 5,
+        target: { byMencion: { macrofinanzas: "mf_finscorp" }, default: "electivo4" },
+        note: "Finanzas Corporativas en Macrofinanzas; Electivo 4 en otras menciones",
+      },
+      { id: "old_micro1ecn", name: "Microeconomía I", code: "ECN2230", cred: 5, target: "topecon" },
+      { id: "old_da3", name: "Data Analytics III", code: "ADM2220", cred: 5, target: "evbasdat" },
+      { id: "old_macro1", name: "Macroeconomía I", code: "ECN2240", cred: 5, target: "macroecon" },
+      { id: "old_mktg1", name: "Marketing I", code: "ADM2030", cred: 5, target: "mktg1" },
+      { id: "old_estad2", name: "Estadísticas II", code: "ADM2211", cred: 5, target: "inferpred" },
+      { id: "old_practop", name: "Práctica Operativa", code: "ADM2260", cred: 6, target: "practicaop", note: "Semestre IV / verano" },
+    ],
+    V: [
+      { id: "old_econometria", name: "Econometría", code: "ADM3110", cred: 5, target: "econometria" },
+      { id: "old_micro2", name: "Microeconomía II", code: "ECN3130", cred: 5, target: "electivo3" },
+      { id: "old_ingles3", name: "Inglés III", code: "ADM3030", cred: 3, target: "pairedIngles1" },
+      {
+        id: "old_macro2",
+        name: "Macroeconomía II",
+        code: "ECN3120",
+        cred: 5,
+        target: { byMencion: { macrofinanzas: "mf_macromon", economia: "ec_macromon" }, genericFallback: true },
+      },
+      { id: "old_teo2", name: "Teología II", code: "FRM2100", cred: 3, target: "teologia" },
+      { id: "old_peg2", name: "PEG 2", code: "—", cred: 3, target: "histpenseco" },
+      { id: "old_minor2", name: "Minor II", code: "MINOR2", cred: 4, target: "minor2" },
+    ],
+    VI: [
+      { id: "old_optpre1", name: "Optativo Pregrado I", code: "OPTATIVO 1", cred: 3, target: "pairedOptativo" },
+      { id: "old_optpre2", name: "Optativo Pregrado II", code: "OPTATIVO 2", cred: 3, target: "pairedOptativo" },
+      {
+        id: "old_gestop",
+        name: "Gestión de Operaciones",
+        code: "ADM3211",
+        cred: 5,
+        target: { byMencion: { estrategianegocios: "en_gestionop" }, genericFallback: true },
+      },
+      { id: "old_ingles4", name: "Inglés IV", code: "ADM3070", cred: 3, target: "pairedIngles1" },
+      { id: "old_da4", name: "Data Analytics IV", code: "ADM3220", cred: 5, target: "electivo1" },
+      {
+        id: "old_orgindustrial",
+        name: "Organización Industrial",
+        code: "ADM3230",
+        cred: 5,
+        target: { byMencion: { economia: "ec_orgindustrial" }, genericFallback: true },
+      },
+      { id: "old_prodincentivos", name: "Productividad e Incentivos", code: "ADM3240", cred: 5, target: "genericFallback", note: "Sin mención específica asociada" },
+    ],
+    VII: [
+      { id: "old_derechoempresa", name: "Derecho de la Empresa", code: "ADM4150", cred: 5, target: "derechoempresa" },
+      { id: "old_estratcomp", name: "Estrategia Competitiva", code: "ADM4120", cred: 5, target: "estrategnego" },
+      {
+        id: "old_direccpers",
+        name: "Dirección de Personas",
+        code: "ADM4130",
+        cred: 5,
+        target: { byMencion: { estrategianegocios: "en_gestiontal" }, genericFallback: true },
+      },
+      {
+        id: "old_mktg2",
+        name: "Marketing II",
+        code: "ADM4111",
+        cred: 5,
+        target: { byMencion: { marketing: "mk_research" }, genericFallback: true },
+      },
+      { id: "old_eticagen", name: "Ética General", code: "ADM1802", cred: 3, target: "nohomologable" },
+      {
+        id: "old_teorinv",
+        name: "Teoría de Inversiones",
+        code: "ECN4140",
+        cred: 5,
+        target: { byMencion: { macrofinanzas: "mf_teorinv" }, genericFallback: true },
+      },
+    ],
+    VIII: [
+      { id: "old_daavz", name: "Data Analytics Avanzado", code: "ADM4201", cred: 6, target: "iaaplicada" },
+      { id: "old_optmag1a", name: "Optativo Nivel Magíster I", code: "OPT MAG ADM 1", cred: 7, target: "nohomologable" },
+      { id: "old_optmag1e", name: "Optativo Nivel Magíster I", code: "OPT MAG ECN 1", cred: 7, target: "nohomologable" },
+      { id: "old_optmag2a", name: "Optativo Nivel Magíster II", code: "OPT MAG ADM 2", cred: 7, target: "nohomologable" },
+      { id: "old_optmag2e", name: "Optativo Nivel Magíster II", code: "OPT MAG ECN 2", cred: 7, target: "nohomologable" },
+      { id: "old_optteo", name: "Optativo Teológico", code: "OPT TEO", cred: 3, target: "penssocial" },
+      { id: "old_peg3", name: "PEG III", code: "—", cred: 3, target: "actualidadint" },
+      { id: "old_minor3", name: "Minor III", code: "MINOR3", cred: 4, target: "minor3" },
+      { id: "old_examentitulo", name: "Examen de Título", code: "ADM6000", cred: 9, target: "nohomologable" },
+    ],
+    IX: [
+      {
+        id: "old_implcontrol",
+        name: "Implementación y Control de Gestión",
+        code: "ADM5111",
+        cred: 6,
+        target: { byMencion: { estrategianegocios: "en_controlestrat" }, genericFallback: true },
+      },
+      { id: "old_eticaempresa", name: "Ética de la Empresa", code: "ADM5240", cred: 4, target: "eticaempresa" },
+      {
+        id: "old_emprendinnov",
+        name: "Emprendimiento e Innovación",
+        code: "ADM5100",
+        cred: 7,
+        target: { byMencion: { estrategianegocios: "en_innovacion" }, genericFallback: true },
+      },
+      { id: "old_insercionlab", name: "Inserción Laboral", code: "ADM5010", cred: 3, target: "insercionlab" },
+      { id: "old_liderazgo", name: "Liderazgo y Gestión del Cambio", code: "ADM5140", cred: 3, target: "liderazgo" },
+      {
+        id: "old_econfiscal",
+        name: "Economía Fiscal",
+        code: "ECN5132",
+        cred: 6,
+        target: { byMencion: { economia: "ec_politeco" }, genericFallback: true },
+      },
+      { id: "old_optmag3a", name: "Optativo Nivel Magíster III", code: "OPT MAG ADM 3", cred: 7, target: "nohomologable" },
+      { id: "old_optmag3e", name: "Optativo Nivel Magíster III", code: "OPT MAG ECN 3", cred: 7, target: "nohomologable" },
+      {
+        id: "old_desarrolloecon",
+        name: "Desarrollo Económico",
+        code: "ECN5130",
+        cred: 7,
+        target: { byMencion: { economia: "ec_topmicro" }, genericFallback: true },
+      },
+    ],
+    X: [{ id: "old_practicaprof", name: "Práctica Profesional", code: "ADM5201", cred: 14, target: "pairedPracticaProf" }],
+  };
+
+  const OLD_GROUP_ORDER = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
+  const STATUS_LABEL = { pendiente: "P", cursando: "C", aprobado: "✓", convalidado: "⇄" };
+  const STATUS_COLORS = {
+    pendiente: { bg: "#FFFFFF", border: "#D6D1CA", text: "#758592", pill: "#D6D1CA" },
+    cursando: { bg: "#F1EEE8", border: "#8A8172", text: "#5A5348", pill: "#8A8172" },
+    aprobado: { bg: "#E9EDF0", border: "#243746", text: "#131E29", pill: "#243746" },
+    convalidado: { bg: "#EEF1F3", border: "#758592", text: "#415364", pill: "#758592" },
+  };
+  const STORAGE_KEY = "malla-conversion-icom2027-v5";
+
+  /* ============================================================
+     HELPERS
+     ============================================================ */
+  function resolveTarget(target, mencionKey) {
+    if (!target || target === "nohomologable" || target === "certificacion" || target === "pairedOptativo" || target === "pairedIngles1" || target === "pairedPracticaProf") return null;
+    if (target === "genericFallback") return { generic: true };
+    if (typeof target === "string") return { id: target };
+    if (target.byMencion) {
+      const specific = target.byMencion[mencionKey];
+      if (specific) return { id: specific };
+      if (target.default) return { id: target.default };
+      if (target.genericFallback) return { generic: true };
+      return null;
+    }
+    return null;
+  }
+  function allOldCourses() {
+    return OLD_GROUP_ORDER.flatMap((g) => OLD_MALLA[g]);
+  }
+  function defaultOldApproved() {
+    return {};
+  }
+  function applyDefaultForView(view) {
+    const groupsToMark = view === "2025" ? ["I", "II", "III", "IV"] : view === "2026" ? ["I", "II"] : [];
+    const next = {};
+    groupsToMark.forEach((g) => {
+      (OLD_MALLA[g] || []).forEach((c) => {
+        next[c.id] = true;
+      });
+    });
+    state.oldApproved = next;
+  }
+  function buildNewSemesters(mencionKey) {
+    const mencion = MENCIONES[mencionKey];
+    const sems = [];
+    for (let s = 1; s <= 10; s++) {
+      let courses = [];
+      if (CICLO_BASICO[s]) courses = courses.concat(CICLO_BASICO[s]);
+      if (CICLO_ESP_COMUN[s]) courses = courses.concat(CICLO_ESP_COMUN[s]);
+      if (mencion[s]) courses = courses.concat(mencion[s]);
+      sems.push({ num: s, courses });
+    }
+    return sems;
+  }
+  function buildGrid(semesters, remapCol) {
+    const grid = {};
+    GROUPS.forEach((g) => (grid[g.id] = {}));
+    const pushToGrid = (course, col) => {
+      const effCol = remapCol ? remapCol(course, col) : col;
+      const groupId = TRACK_GROUP[course.track] || course.track;
+      if (!grid[groupId][effCol]) grid[groupId][effCol] = [];
+      grid[groupId][effCol].push(course);
+    };
+    pushToGrid(PRACTICA_OPERATIVA, "P");
+    pushToGrid(EXAMEN_GRADO, "E");
+    semesters.forEach((sem) => sem.courses.forEach((c) => pushToGrid(c, sem.num)));
+    // Los Electivos de Especialidad siempre se muestran antes que las
+    // tarjetas de Especialización (mención) dentro de la misma celda.
+    Object.keys(grid).forEach((groupId) => {
+      Object.keys(grid[groupId]).forEach((col) => {
+        grid[groupId][col] = grid[groupId][col]
+          .map((c, i) => ({ c, i, isElectivo: GENERIC_ELECTIVE_IDS.includes(c.id) ? 0 : 1 }))
+          .sort((a, b) => a.isElectivo - b.isElectivo || a.i - b.i)
+          .map((x) => x.c);
+      });
+    });
+    return grid;
+  }
+  function toRoman(n) {
+    const map = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
+    return map[n - 1] || n;
+  }
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
+  }
+
+  /* ============================================================
+     ESTADO
+     ============================================================ */
+  const state = {
+    mencionKey: "macrofinanzas",
+    oldApproved: defaultOldApproved(),
+    newOverride: {},
+    oldOpen: true,
+    saving: false,
+    loaded: false,
+    mallaView: "2027",
+  };
+
+  let saveTimer = null;
+  function scheduleSave() {
+    state.saving = true;
+    renderSavingIndicator();
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(async () => {
+      try {
+        await window.storage.set(
+          STORAGE_KEY,
+          JSON.stringify({ mencion: state.mencionKey, oldApproved: state.oldApproved, newOverride: state.newOverride, mallaView: state.mallaView })
+        );
+      } catch (e) {}
+      state.saving = false;
+      renderSavingIndicator();
+    }, 400);
+  }
+
+  async function loadState() {
+    try {
+      const res = await window.storage.get(STORAGE_KEY);
+      if (res && res.value) {
+        const parsed = JSON.parse(res.value);
+        if (parsed.mencion) state.mencionKey = parsed.mencion;
+        if (parsed.oldApproved) state.oldApproved = parsed.oldApproved;
+        if (parsed.newOverride) state.newOverride = parsed.newOverride;
+        if (parsed.mallaView) state.mallaView = parsed.mallaView;
+      }
+    } catch (e) {}
+    state.loaded = true;
+    render();
+  }
+
+  function toggleOld(id) {
+    state.oldApproved[id] = !state.oldApproved[id];
+    scheduleSave();
+    render();
+  }
+  function cycleNew(id) {
+    const order = ["pendiente", "cursando", "aprobado"];
+    const cur = state.newOverride[id] || "pendiente";
+    state.newOverride[id] = order[(order.indexOf(cur) + 1) % order.length];
+    scheduleSave();
+    render();
+  }
+  function resetAll() {
+    if (confirm("¿Reiniciar toda la información marcada en ambas mallas? Esta acción no se puede deshacer.")) {
+      state.oldApproved = defaultOldApproved();
+      state.newOverride = {};
+      scheduleSave();
+      render();
+    }
+  }
+  function markAllOld() {
+    const next = {};
+    allOldCourses().forEach((c) => (next[c.id] = true));
+    state.oldApproved = next;
+    scheduleSave();
+    render();
+  }
+  function unmarkAllOld() {
+    state.oldApproved = {};
+    scheduleSave();
+    render();
+  }
+  function toggleMarkGroup(g) {
+    const courses = OLD_MALLA[g];
+    const allChecked = courses.every((c) => state.oldApproved[c.id]);
+    courses.forEach((c) => {
+      if (allChecked) delete state.oldApproved[c.id];
+      else state.oldApproved[c.id] = true;
+    });
+    scheduleSave();
+    render();
+  }
+  function toggleOldPanel() {
+    state.oldOpen = !state.oldOpen;
+    render();
+  }
+
+  function computeConvalidation(mencionKey) {
+    const mappableNewIds = new Set();
+    allOldCourses().forEach((c) => {
+      const r = resolveTarget(c.target, mencionKey);
+      if (r && r.id) mappableNewIds.add(r.id);
+    });
+
+    const convalidatedIds = new Set();
+    const convalidatedSource = {};
+    const genericSources = [];
+    allOldCourses().forEach((c) => {
+      if (state.oldApproved[c.id]) {
+        const r = resolveTarget(c.target, mencionKey);
+        if (r && r.id) {
+          convalidatedIds.add(r.id);
+          convalidatedSource[r.id] = c.name;
+        } else if (r && r.generic) {
+          genericSources.push(c.name);
+        }
+      }
+    });
+    // Optativo Pregrado I + II, juntos, convalidan un único Electivo de Especialidad
+    if (state.oldApproved["old_optpre1"] && state.oldApproved["old_optpre2"]) {
+      genericSources.push("Optativo Pregrado I + II");
+    }
+    // Inglés III + Inglés IV, en conjunto, convalidan Inglés Profesional I
+    if (state.oldApproved["old_ingles3"] && state.oldApproved["old_ingles4"]) {
+      convalidatedIds.add("ingles1");
+      convalidatedSource["ingles1"] = "Inglés III + Inglés IV";
+    }
+    // Práctica Profesional (14 SCT) + un Optativo de Magíster (7 SCT), en conjunto, convalidan Práctica Profesional (21 SCT)
+    const OPT_MAG_IDS = ["old_optmag1a", "old_optmag1e", "old_optmag2a", "old_optmag2e", "old_optmag3a", "old_optmag3e"];
+    const usedOptMagId = OPT_MAG_IDS.find((id) => state.oldApproved[id]);
+    if (state.oldApproved["old_practicaprof"] && usedOptMagId) {
+      const usedOptMagCourse = allOldCourses().find((c) => c.id === usedOptMagId);
+      convalidatedIds.add("practicaprof");
+      convalidatedSource["practicaprof"] = `Práctica Profesional + ${usedOptMagCourse.name}`;
+    }
+    let filled = 0;
+    for (const eid of GENERIC_ELECTIVE_IDS) {
+      if (filled >= genericSources.length) break;
+      if (!convalidatedIds.has(eid)) {
+        convalidatedIds.add(eid);
+        convalidatedSource[eid] = genericSources[filled];
+        filled++;
+      }
+    }
+    const genericCount = genericSources.length;
+
+    function getNewStatus(id) {
+      if (convalidatedIds.has(id)) return "convalidado";
+      if (state.newOverride[id]) return state.newOverride[id];
+      return "pendiente";
+    }
+
+    return { mappableNewIds, convalidatedIds, convalidatedSource, genericCount, getNewStatus };
+  }
+
+  /* ============================================================
+     DESCARGA PDF (html2canvas + jsPDF)
+     Genera una vista vertical (solo malla nueva, semestre a semestre
+     hacia abajo), independiente del layout horizontal en pantalla.
+     ============================================================ */
+  function buildPrintableMallaHTML(mencionKey) {
+    const { mappableNewIds, convalidatedSource, getNewStatus } = computeConvalidation(mencionKey);
+    const newSemesters = buildNewSemesters(mencionKey);
+    const grid = buildGrid(newSemesters);
+    const columnKeys = [1, 2, 3, 4, "P", 5, 6, 7, 8, "E", 9, 10];
+    const colLabel = (k) => (k === "P" ? "Práctica Operativa" : k === "E" ? "Examen de Grado" : `Semestre ${toRoman(k)}`);
+
+    let totalCred = 0;
+    let doneCred = 0;
+
+    const sections = columnKeys
+      .map((k) => {
+        let rows = "";
+        let semTotal = 0;
+        let semDone = 0;
+        GROUPS.forEach((group) => {
+          const courses = grid[group.id][k] || [];
+          courses.forEach((course) => {
+            const status = getNewStatus(course.id);
+            const colors = STATUS_COLORS[status];
+            const specNum = SPEC_NUMBER_MAP[k] && (course.track === "discA" ? SPEC_NUMBER_MAP[k].discA : course.track === "discB" ? SPEC_NUMBER_MAP[k].discB : null);
+            const displayName = specNum ? `Especialización ${toRoman(specNum)} (${course.name})` : course.name;
+            const sourceTxt = status === "convalidado" && convalidatedSource[course.id] ? ` — (${esc(convalidatedSource[course.id])})` : "";
+            semTotal += course.cred;
+            if (status === "aprobado" || status === "convalidado") semDone += course.cred;
+            rows += `
+              <div class="p-row">
+                <span class="p-status-dot" style="background:${status === "pendiente" ? "#fff" : colors.pill}; border-color:${colors.border};"></span>
+                <span class="p-name">${esc(displayName)}<span class="p-source">${sourceTxt}</span></span>
+                <span class="p-cred">${course.cred} SCT</span>
+              </div>`;
+          });
+        });
+        totalCred += semTotal;
+        doneCred += semDone;
+        if (!rows) return "";
+        return `
+          <div class="p-section">
+            <div class="p-section-header"><span>${esc(colLabel(k))}</span><span>${semDone} / ${semTotal} SCT</span></div>
+            ${rows}
+          </div>`;
+      })
+      .join("");
+
+    return `
+      <div class="p-doc">
+        <div class="p-doc-header">
+          <div class="p-doc-eyebrow">Facultad de Ciencias Económicas y Empresariales</div>
+          <div class="p-doc-title">Simulador de malla 2027</div>
+          <div class="p-doc-sub">Mención ${esc(MENCIONES[mencionKey].label)} · ${doneCred} / ${totalCred} SCT cumplidos</div>
+        </div>
+        ${sections}
+      </div>`;
+  }
+
+  async function downloadPdf() {
+    const btn = document.getElementById("m-pdf-btn");
+    const original = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "Generando PDF…";
+
+    // Capturamos únicamente el panel de la malla nueva (grilla), sin la malla
+    // antigua ni el resto de la interfaz.
+    const panel = document.querySelector(".m-new-panel");
+    const scrollBox = panel ? panel.querySelector(".m-grid-scroll") : null;
+    const prevOverflow = scrollBox ? scrollBox.style.overflow : "";
+    const prevWidth = scrollBox ? scrollBox.style.width : "";
+    if (scrollBox) {
+      scrollBox.style.overflow = "visible";
+      scrollBox.style.width = "max-content";
+    }
+
+    // esperar a que el reflow aplique antes de medir/capturar
+    await new Promise((r) => setTimeout(r, 60));
+
+    try {
+      const target = panel;
+      const fullWidth = Math.max(target.scrollWidth, target.offsetWidth);
+      const fullHeight = Math.max(target.scrollHeight, target.offsetHeight);
+      const canvas = await html2canvas(target, {
+        scale: 2,
+        backgroundColor: "#EDEAE5",
+        useCORS: true,
+        scrollX: 0,
+        scrollY: 0,
+        windowWidth: fullWidth,
+        windowHeight: fullHeight,
+        width: fullWidth,
+        height: fullHeight,
+      });
+      const { jsPDF } = window.jspdf;
+      const imgData = canvas.toDataURL("image/png");
+      const pxToMm = 0.264583 / 2; // scale:2
+      const wMm = canvas.width * pxToMm;
+      const hMm = canvas.height * pxToMm;
+      const pdf = new jsPDF({ orientation: wMm > hMm ? "landscape" : "portrait", unit: "mm", format: [wMm, hMm] });
+      pdf.addImage(imgData, "PNG", 0, 0, wMm, hMm);
+
+      // Intento 1: descarga directa (funciona en la mayoría de navegadores)
+      let downloadWorked = true;
+      try {
+        pdf.save("malla-icom-2027.pdf");
+      } catch (e) {
+        downloadWorked = false;
+      }
+
+      // Intento 2 (respaldo): abrir el PDF en una pestaña nueva si la descarga
+      // directa está bloqueada (común dentro de iframes con sandbox). Desde ahí
+      // se puede guardar con el botón de descarga del visor o Ctrl+S.
+      try {
+        const blobUrl = pdf.output("bloburl");
+        const opened = window.open(blobUrl, "_blank");
+        if (!opened) {
+          // El navegador bloqueó la ventana emergente: ofrecer el enlace directo
+          const a = document.createElement("a");
+          a.href = blobUrl;
+          a.target = "_blank";
+          a.textContent = "Abrir PDF generado";
+          a.style.cssText = "display:block;margin-top:8px;color:#CE0019;font-weight:700;";
+          btn.insertAdjacentElement("afterend", a);
+        }
+      } catch (e2) {
+        if (!downloadWorked) {
+          alert("No se pudo generar ni descargar el PDF automáticamente: " + e2.message);
+        }
+      }
+    } catch (e) {
+      alert("No se pudo generar el PDF: " + e.message);
+    } finally {
+      if (scrollBox) {
+        scrollBox.style.overflow = prevOverflow;
+        scrollBox.style.width = prevWidth;
+      }
+      btn.disabled = false;
+      btn.textContent = original;
+    }
+  }
+
+  /* ============================================================
+     RENDER
+     ============================================================ */
+  function renderSavingIndicator() {
+    const el = document.getElementById("m-saving");
+    if (el) el.style.opacity = state.saving ? "1" : "0";
+  }
+
+  function render() {
+    const root = document.getElementById("malla-root");
+    const mencionKey = state.mencionKey;
+
+    // Guardar posiciones de scroll para restaurarlas después de reconstruir el HTML
+    const prevWindowScrollY = window.scrollY;
+    const prevWindowScrollX = window.scrollX;
+    const prevOldGroupsEl = document.querySelector(".m-old-groups");
+    const prevOldGroupsScrollTop = prevOldGroupsEl ? prevOldGroupsEl.scrollTop : 0;
+    const prevGridScrollEl = document.querySelector(".m-grid-scroll");
+    const prevGridScrollLeft = prevGridScrollEl ? prevGridScrollEl.scrollLeft : 0;
+    const prevGridScrollTop = prevGridScrollEl ? prevGridScrollEl.scrollTop : 0;
+
+    const mappableNewIds = new Set();
+    allOldCourses().forEach((c) => {
+      const r = resolveTarget(c.target, mencionKey);
+      if (r && r.id) mappableNewIds.add(r.id);
+    });
+
+    const convalidatedIds = new Set();
+    const convalidatedSource = {};
+    const genericSources = [];
+    allOldCourses().forEach((c) => {
+      if (state.oldApproved[c.id]) {
+        const r = resolveTarget(c.target, mencionKey);
+        if (r && r.id) {
+          convalidatedIds.add(r.id);
+          convalidatedSource[r.id] = c.name;
+        } else if (r && r.generic) {
+          genericSources.push(c.name);
+        }
+      }
+    });
+    // Optativo Pregrado I + II, juntos, convalidan un único Electivo de Especialidad
+    if (state.oldApproved["old_optpre1"] && state.oldApproved["old_optpre2"]) {
+      genericSources.push("Optativo Pregrado I + II");
+    }
+    // Inglés III + Inglés IV, en conjunto, convalidan Inglés Profesional I
+    if (state.oldApproved["old_ingles3"] && state.oldApproved["old_ingles4"]) {
+      convalidatedIds.add("ingles1");
+      convalidatedSource["ingles1"] = "Inglés III + Inglés IV";
+    }
+    // Práctica Profesional (14 SCT) + un Optativo de Magíster (7 SCT), en conjunto, convalidan Práctica Profesional (21 SCT)
+    const OPT_MAG_IDS = ["old_optmag1a", "old_optmag1e", "old_optmag2a", "old_optmag2e", "old_optmag3a", "old_optmag3e"];
+    const usedOptMagId = OPT_MAG_IDS.find((id) => state.oldApproved[id]);
+    if (state.oldApproved["old_practicaprof"] && usedOptMagId) {
+      const usedOptMagCourse = allOldCourses().find((c) => c.id === usedOptMagId);
+      convalidatedIds.add("practicaprof");
+      convalidatedSource["practicaprof"] = `Práctica Profesional + ${usedOptMagCourse.name}`;
+    }
+    let filled = 0;
+    for (const eid of GENERIC_ELECTIVE_IDS) {
+      if (filled >= genericSources.length) break;
+      if (!convalidatedIds.has(eid)) {
+        convalidatedIds.add(eid);
+        convalidatedSource[eid] = genericSources[filled];
+        filled++;
+      }
+    }
+    const genericCount = genericSources.length;
+
+    function getNewStatus(id) {
+      if (convalidatedIds.has(id)) return "convalidado";
+      if (state.newOverride[id]) return state.newOverride[id];
+      return "pendiente";
+    }
+
+    function remapCol(course, col) {
+      if (state.mallaView === "2027") return col;
+      const trans = TRANSICION_BY_ID[course.id];
+      if (!trans) return col;
+      if (trans.excludeMencion && trans.excludeMencion.includes(mencionKey)) return col;
+      let rec = state.mallaView === "2025" ? trans.rec2025 : trans.rec2026;
+      if (rec && typeof rec === "object") rec = rec[mencionKey];
+      if (!rec) return col;
+      return rec;
+    }
+
+    const newSemesters = buildNewSemesters(mencionKey);
+    const grid = buildGrid(newSemesters, remapCol);
+
+    let totalCredits = PRACTICA_OPERATIVA.cred + EXAMEN_GRADO.cred;
+    newSemesters.forEach((s) => s.courses.forEach((c) => (totalCredits += c.cred)));
+
+    let doneCredits = 0;
+    const addDone = (c) => {
+      const st = getNewStatus(c.id);
+      if (st === "aprobado" || st === "convalidado") doneCredits += c.cred;
+    };
+    addDone(PRACTICA_OPERATIVA);
+    addDone(EXAMEN_GRADO);
+    newSemesters.forEach((s) => s.courses.forEach(addDone));
+
+    const progressPct = totalCredits ? Math.round((doneCredits / totalCredits) * 100) : 0;
+    const oldApprovedCount = Object.values(state.oldApproved).filter(Boolean).length;
+    const oldTotalCount = allOldCourses().length;
+    const columnKeys = [1, 2, 3, 4, "P", 5, 6, 7, 8, "E", 9, 10];
+
+    /* ---------- HTML: header ---------- */
+    let html = `
+      <div class="m-header">
+        <div class="m-header-inner">
+          <div class="m-logo-lockup">
+            <img src="data:image/png;base64,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" alt="Facultad de Ciencias Económicas y Empresariales - Universidad de los Andes" style="height:88px; width:auto; display:block;" />
+          </div>
+          <h1 class="m-title">Simulador de malla 2027</h1>
+          <div class="m-subtitle">Marca los cursos aprobados a la izquierda y a la derecha se desplegará tu malla 2027 con las homologaciones aplicadas.</div>
+        </div>
+      </div>
+
+      <div class="m-controlbar">
+        <div class="m-controlbar-inner">
+          <label class="m-mencion-label">Mención
+            <select id="m-mencion-select" class="m-select">
+              ${MENCION_KEYS.map((k) => `<option value="${k}" ${k === mencionKey ? "selected" : ""}>${esc(MENCIONES[k].label)}</option>`).join("")}
+            </select>
+          </label>
+
+          <div class="m-malla-tabs">
+            <button type="button" class="m-malla-tab${state.mallaView === "2027" ? " active" : ""}" data-malla-view="2027">Malla 2027</button>
+            <button type="button" class="m-malla-tab${state.mallaView === "2025" ? " active" : ""}" data-malla-view="2025">Malla Transición 2025</button>
+            <button type="button" class="m-malla-tab${state.mallaView === "2026" ? " active" : ""}" data-malla-view="2026">Malla Transición 2026</button>
+          </div>
+
+          <div class="m-progress-wrap">
+            <div class="m-progress-labelrow">
+              <span>${doneCredits} / ${totalCredits} SCT en la malla nueva</span>
+              <span class="m-progress-pct">${progressPct}%</span>
+            </div>
+            <div class="m-progress-track"><div class="m-progress-fill" style="width:${progressPct}%"></div></div>
+          </div>
+
+          <div class="m-old-counter">${oldApprovedCount} / ${oldTotalCount} cursos antiguos marcados</div>
+          <button id="m-pdf-btn" class="m-pdf-btn no-pdf">⬇ Descargar PDF</button>
+          <button id="m-reset-btn" class="m-reset-btn no-pdf">Reiniciar todo</button>
+        </div>
+      </div>
+
+      <div class="m-legend">
+        <span class="m-legend-item"><span class="m-legend-dot" style="background:${STATUS_COLORS.pendiente.border}"></span>Pendiente</span>
+        <span class="m-legend-item"><span class="m-legend-dot" style="background:${STATUS_COLORS.convalidado.pill}"></span>Convalidado desde malla actual</span>
+        ${state.mallaView !== "2027" ? `<button id="m-toggle-old-btn" class="m-toggle-old-btn no-pdf">${state.oldOpen ? "Ocultar malla actual ‹" : "Mostrar malla actual ›"}</button>` : ""}
+      </div>
+
+      <main class="m-split${state.oldOpen && state.mallaView !== "2027" ? "" : " compact"}">
+    `;
+
+    /* ---------- malla actual ---------- */
+    if (state.oldOpen && state.mallaView !== "2027") {
+      const allOldChecked = allOldCourses().every((c) => state.oldApproved[c.id]);
+      const anyOldChecked = allOldCourses().some((c) => state.oldApproved[c.id]);
+      html += `<div class="m-old-panel">
+        <div class="m-panel-heading-row">
+          <div class="m-panel-heading">Malla actual - Ing. Comercial</div>
+          <span class="m-mark-all-group">
+            <button type="button" id="m-mark-all-btn" class="m-mark-all-btn no-pdf" ${allOldChecked ? "disabled" : ""}>Marcar todo</button>
+            <button type="button" id="m-unmark-all-btn" class="m-mark-all-btn no-pdf secondary" ${!anyOldChecked ? "disabled" : ""}>Desmarcar todo</button>
+          </span>
+        </div>
+        <div class="m-old-panel-instructions">Selecciona los cursos que tengas aprobados y deselecciona los que no.</div>`;
+      html += `<div class="m-old-groups">`;
+      OLD_GROUP_ORDER.forEach((g) => {
+        const courses = OLD_MALLA[g];
+        const done = courses.filter((c) => state.oldApproved[c.id]).length;
+        const allGroupChecked = courses.every((c) => state.oldApproved[c.id]);
+        html += `<div class="m-old-group">
+          <div class="m-old-group-header">
+            <span>Semestre ${g}</span>
+            <span class="m-old-group-header-right">
+              <span class="m-old-group-count">${done}/${courses.length}</span>
+              <button type="button" class="m-mark-group-btn no-pdf" data-group="${g}">${allGroupChecked ? "Desmarcar" : "Marcar todo"}</button>
+            </span>
+          </div>`;
+        courses.forEach((c) => {
+          const r = resolveTarget(c.target, mencionKey);
+          const isChecked = !!state.oldApproved[c.id];
+          let hint = "";
+          let noteOverride = null;
+          if (c.target === "nohomologable") {
+            const isOptMag = ["old_optmag1a", "old_optmag1e", "old_optmag2a", "old_optmag2e", "old_optmag3a", "old_optmag3e"].includes(c.id);
+            if (isOptMag) {
+              hint = " · junto con Práctica Profesional convalida Práctica Profesional (21 SCT)";
+              const practicaChecked = !!state.oldApproved["old_practicaprof"];
+              if (isChecked && practicaChecked) noteOverride = "✓ Convalida Práctica Profesional junto con Práctica Profesional (14 SCT)";
+              else if (isChecked) noteOverride = "Falta marcar también Práctica Profesional para convalidar";
+            } else {
+              hint = " · sin homologación";
+            }
+          } else if (c.target === "certificacion") {
+            hint = " · acredita nivel de inglés";
+            if (c.id === "old_ingles1" || c.id === "old_ingles2") {
+              const bothChecked = !!state.oldApproved["old_ingles1"] && !!state.oldApproved["old_ingles2"];
+              if (bothChecked) noteOverride = "✓ Inglés I + II: nivel B1 acreditado";
+              else if (isChecked) noteOverride = "Falta el otro curso para acreditar B1 en conjunto";
+              else noteOverride = c.note;
+            }
+          } else if (c.target === "pairedOptativo") {
+            hint = " · electivo de especialidad (junto con el otro Optativo)";
+            const bothChecked = !!state.oldApproved["old_optpre1"] && !!state.oldApproved["old_optpre2"];
+            if (bothChecked) noteOverride = "✓ Optativo I + II: convalida 1 Electivo de Especialidad";
+            else if (isChecked) noteOverride = "Falta el otro Optativo — juntos convalidan solo 1 electivo";
+          } else if (c.target === "pairedIngles1") {
+            hint = " · Inglés Profesional I (junto con el otro Inglés)";
+            const otherId = c.id === "old_ingles3" ? "old_ingles4" : "old_ingles3";
+            const bothChecked = !!state.oldApproved["old_ingles3"] && !!state.oldApproved["old_ingles4"];
+            if (bothChecked) noteOverride = "✓ Inglés III + IV: convalida Inglés Profesional I";
+            else if (isChecked) noteOverride = "Falta el otro curso para convalidar Inglés Profesional I";
+          } else if (c.target === "pairedPracticaProf") {
+            hint = " · Práctica Profesional (junto con un Optativo de Magíster)";
+            const anyOptMag = ["old_optmag1a", "old_optmag1e", "old_optmag2a", "old_optmag2e", "old_optmag3a", "old_optmag3e"].some((id) => state.oldApproved[id]);
+            if (anyOptMag) noteOverride = "✓ Práctica Profesional + Optativo de Magíster: convalida Práctica Profesional (21 SCT)";
+            else noteOverride = "Falta marcar también un Optativo de Magíster para convalidar";
+          } else if (r && r.generic) hint = " · electivo de especialidad";
+          const noteText = noteOverride !== null ? noteOverride : c.note;
+          html += `
+            <button type="button" class="m-old-row ${isChecked ? "checked" : ""}" data-old-id="${c.id}">
+              <span class="m-old-checkbox">${isChecked ? "✓" : ""}</span>
+              <span class="m-old-row-text">
+                <span class="m-old-row-name">${esc(c.name)}</span>
+                <span class="m-old-row-meta">${esc(c.code)} · ${c.cred} SCT${hint}</span>
+                ${noteText ? `<span class="m-old-row-note">${esc(noteText)}</span>` : ""}
+              </span>
+            </button>`;
+        });
+        html += `</div>`;
+      });
+      html += `</div></div>`;
+    }
+
+    /* ---------- malla nueva ---------- */
+    const columnTotals = {};
+    const columnDone = {};
+    columnKeys.forEach((k) => {
+      columnTotals[k] = 0;
+      columnDone[k] = 0;
+    });
+    GROUPS.forEach((g) => {
+      columnKeys.forEach((k) => {
+        const courses = grid[g.id][k] || [];
+        courses.forEach((course) => {
+          columnTotals[k] += course.cred;
+          const st = getNewStatus(course.id);
+          if (st === "aprobado" || st === "convalidado") columnDone[k] += course.cred;
+        });
+      });
+    });
+    // sumar Práctica Operativa y Examen de Grado (ya incluidos en el grid vía 'P'/'E')
+    const grandTotal = columnKeys.reduce((a, k) => a + columnTotals[k], 0);
+    const grandDone = columnKeys.reduce((a, k) => a + columnDone[k], 0);
+
+    html += `<div class="m-new-panel">
+      <div class="m-panel-heading">${state.mallaView === "2027" ? "Malla nueva 2027" : `Malla de Transición Cohorte ${state.mallaView}`} <span class="m-panel-heading-sub">· ${esc(MENCIONES[mencionKey].label)}</span></div>
+      <div class="m-grid-scroll">
+        <div class="m-grid-table" style="grid-template-columns: 170px ${columnKeys.map((k) => (k === "P" || k === "E" ? "56px" : "118px")).join(" ")};">
+          <div class="m-grid-corner"></div>
+          ${columnKeys.map((k) => `<div class="m-grid-sem-header${k === "P" || k === "E" ? " narrow" : ""}">${k === "P" || k === "E" ? "" : "Sem. " + toRoman(k)}</div>`).join("")}
+          ${GROUPS.map((group, gi) => {
+            const prevSection = gi > 0 ? GROUPS[gi - 1].section : null;
+            const sectionHeader =
+              group.section && group.section !== prevSection
+                ? `<div class="m-grid-section-header">${esc(group.section)}</div>`
+                : "";
+            let row = sectionHeader + `<div class="m-grid-track-label">${esc(group.label)}${group.sublabel ? `<span class="m-grid-track-sublabel">${esc(group.sublabel)}</span>` : ""}</div>`;
+            row += columnKeys
+              .map((k) => {
+                let courses = grid[group.id][k] || [];
+                if (courses.length === 0) return `<div class="m-grid-cell"></div>`;
+                if (group.id === "discipEspecifica" && (k === 5 || k === 6)) {
+                  const specIdx = courses.findIndex((c) => c.track === "discA" || c.track === "discB");
+                  if (specIdx !== -1) {
+                    courses = courses.slice();
+                    courses.splice(specIdx, 0, { id: `__spacer_${k}`, spacer: true });
+                  }
+                }
+                const isNarrowCol = k === "P" || k === "E";
+                const cardsHtml = courses
+                  .map((course) => {
+                    if (course.spacer) return `<div class="m-grid-card-spacer"></div>`;
+                    const status = getNewStatus(course.id);
+                    const editable = false;
+                    const colors = STATUS_COLORS[status];
+                    const specNum = SPEC_NUMBER_MAP[k] && (course.track === "discA" ? SPEC_NUMBER_MAP[k].discA : course.track === "discB" ? SPEC_NUMBER_MAP[k].discB : null);
+                    const electivoMatch = /^Electivo de Especialidad (\d+)$/.exec(course.name);
+                    const displayNameHtml = specNum
+                      ? `Especialización ${toRoman(specNum)}<br><span class="m-grid-card-specname">${esc(course.name)}</span>`
+                      : electivoMatch
+                      ? `Electivo de Especialidad<br><span class="m-grid-card-specname">${esc(electivoMatch[1])}</span>`
+                      : esc(course.name);
+                    const displayNamePlain = specNum ? `Especialización ${toRoman(specNum)} (${course.name})` : course.name;
+                    const sourceNote = status === "convalidado" && convalidatedSource[course.id] ? `<div class="m-grid-card-source">(${esc(convalidatedSource[course.id])})</div>` : "";
+                    if (isNarrowCol) {
+                      return `
+                      <button type="button" class="m-grid-card narrow" data-new-id="${course.id}" data-editable="${editable ? "1" : "0"}"
+                        style="background:${colors.bg};border-color:${colors.border};cursor:${editable ? "pointer" : "default"}">
+                        <span class="m-status-pill" style="background:${status === "pendiente" ? "transparent" : colors.pill};border-color:${colors.pill};color:${status === "pendiente" ? colors.text : "#fff"}">${STATUS_LABEL[status]}</span>
+                        <span class="m-grid-card-name">${esc(displayNamePlain)} — ${course.cred} SCT</span>
+                      </button>`;
+                    }
+                    return `
+                    <button type="button" class="m-grid-card" data-new-id="${course.id}" data-editable="${editable ? "1" : "0"}"
+                      style="background:${colors.bg};border-color:${colors.border};cursor:${editable ? "pointer" : "default"}">
+                      <div class="m-grid-card-top">
+                        <span class="m-grid-card-name">${displayNameHtml}</span>
+                        <span class="m-status-pill" style="background:${status === "pendiente" ? "transparent" : colors.pill};border-color:${colors.pill};color:${status === "pendiente" ? colors.text : "#fff"}">${STATUS_LABEL[status]}</span>
+                      </div>
+                      ${course.note ? `<div class="m-grid-card-note">${esc(course.note)}</div>` : ""}
+                      ${sourceNote}
+                      <div class="m-grid-card-meta"><span>${course.cred} SCT</span></div>
+                    </button>`;
+                  })
+                  .join("");
+                return `<div class="m-grid-cell">${cardsHtml}</div>`;
+              })
+              .join("");
+            return row;
+          }).join("")}
+          <div class="m-grid-total-label">Total SCT<div class="m-grid-total-grand">${grandTotal}</div></div>
+          ${columnKeys.map((k) => `<div class="m-grid-total-cell">${columnTotals[k]}</div>`).join("")}
+          <div class="m-grid-done-label">Cumplidos<div class="m-grid-done-grand">${grandDone}</div></div>
+          ${columnKeys.map((k) => `<div class="m-grid-done-cell${columnDone[k] === columnTotals[k] && columnTotals[k] > 0 ? " complete" : ""}">${columnDone[k]}</div>`).join("")}
+        </div>
+      </div>
+    </div>`;
+
+    html += `</main>
+      <footer class="m-footer">
+        <span></span>
+        <span id="m-saving" style="opacity:${state.saving ? 1 : 0};transition:opacity .3s">Guardando…</span>
+      </footer>`;
+
+    root.innerHTML = html;
+
+    // Restaurar posiciones de scroll tras reconstruir el HTML
+    window.scrollTo(prevWindowScrollX, prevWindowScrollY);
+    const newOldGroupsEl = document.querySelector(".m-old-groups");
+    if (newOldGroupsEl) newOldGroupsEl.scrollTop = prevOldGroupsScrollTop;
+    const newGridScrollEl = document.querySelector(".m-grid-scroll");
+    if (newGridScrollEl) {
+      newGridScrollEl.scrollLeft = prevGridScrollLeft;
+      newGridScrollEl.scrollTop = prevGridScrollTop;
+    }
+
+    /* ---------- listeners ---------- */
+    document.getElementById("m-mencion-select").addEventListener("change", (e) => {
+      state.mencionKey = e.target.value;
+      scheduleSave();
+      render();
+    });
+    root.querySelectorAll(".m-malla-tab").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        state.mallaView = btn.getAttribute("data-malla-view");
+        applyDefaultForView(state.mallaView);
+        scheduleSave();
+        render();
+      });
+    });
+    document.getElementById("m-pdf-btn").addEventListener("click", downloadPdf);
+    document.getElementById("m-reset-btn").addEventListener("click", resetAll);
+    const toggleBtn = document.getElementById("m-toggle-old-btn");
+    if (toggleBtn) toggleBtn.addEventListener("click", toggleOldPanel);
+    const markAllBtn = document.getElementById("m-mark-all-btn");
+    if (markAllBtn) markAllBtn.addEventListener("click", markAllOld);
+    const unmarkAllBtn = document.getElementById("m-unmark-all-btn");
+    if (unmarkAllBtn) unmarkAllBtn.addEventListener("click", unmarkAllOld);
+    root.querySelectorAll(".m-mark-group-btn").forEach((btn) => {
+      btn.addEventListener("click", () => toggleMarkGroup(btn.getAttribute("data-group")));
+    });
+
+    root.querySelectorAll(".m-old-row").forEach((btn) => {
+      btn.addEventListener("click", () => toggleOld(btn.getAttribute("data-old-id")));
+    });
+    root.querySelectorAll(".m-grid-card").forEach((btn) => {
+      if (btn.getAttribute("data-editable") === "1") {
+        btn.addEventListener("click", () => cycleNew(btn.getAttribute("data-new-id")));
+      }
+    });
+  }
+
+  loadState();
+})();
+</script>
