@@ -95,7 +95,9 @@
   .m-grid-track-sublabel { font-size: 9.5px; font-weight: 500; color: #758592; margin-top: 2px; }
   .m-grid-section-header { grid-column: 1 / -1; font-size: 11px; font-weight: 700; color: #131E29; text-transform: uppercase; letter-spacing: 0.05em; padding: 10px 8px 2px; border-top: 1px solid #D6D1CA; margin-top: 4px; }
   .m-grid-cell { display: flex; flex-direction: column; gap: 6px; align-items: stretch; min-height: 60px; }
-  .m-grid-card { width: 100%; text-align: left; border: 1px solid #D6D1CA; border-radius: 7px; padding: 6px 7px; display: flex; flex-direction: column; justify-content: space-between; gap: 2px; }
+  .m-grid-card { width: 100%; min-height: 64px; text-align: left; border: 1px solid #D6D1CA; border-radius: 7px; padding: 6px 7px; display: flex; flex-direction: column; justify-content: space-between; gap: 2px; }
+  .m-grid-card.card-spec { border-left: 3px solid #CE0019; }
+  .m-grid-card.card-electivo { border-left: 3px solid #131E29; }
   .m-grid-card-spacer { width: 100%; min-height: 46px; visibility: hidden; }
   .m-grid-card.narrow { writing-mode: vertical-rl; text-orientation: mixed; align-items: center; gap: 6px; padding: 8px 4px; white-space: nowrap; }
   .m-grid-card.narrow .m-grid-card-name { font-size: 10.5px; writing-mode: vertical-rl; text-orientation: mixed; }
@@ -644,13 +646,20 @@
     pushToGrid(PRACTICA_OPERATIVA, "P");
     pushToGrid(EXAMEN_GRADO, "E");
     semesters.forEach((sem) => sem.courses.forEach((c) => pushToGrid(c, sem.num)));
-    // Los Electivos de Especialidad siempre se muestran antes que las
-    // tarjetas de Especialización (mención) dentro de la misma celda.
+    // De Semestre V a VIII: primero Especialización (mención discA/discB),
+    // luego Electivos de Especialidad, luego el resto de las tarjetas.
     Object.keys(grid).forEach((groupId) => {
       Object.keys(grid[groupId]).forEach((col) => {
+        const colNum = Number(col);
+        const isSpecRange = colNum >= 5 && colNum <= 8;
         grid[groupId][col] = grid[groupId][col]
-          .map((c, i) => ({ c, i, isElectivo: GENERIC_ELECTIVE_IDS.includes(c.id) ? 0 : 1 }))
-          .sort((a, b) => a.isElectivo - b.isElectivo || a.i - b.i)
+          .map((c, i) => {
+            const isSpec = isSpecRange && (c.track === "discA" || c.track === "discB");
+            const isElectivo = GENERIC_ELECTIVE_IDS.includes(c.id);
+            const priority = isSpec ? 0 : isElectivo ? 1 : 2;
+            return { c, i, priority };
+          })
+          .sort((a, b) => a.priority - b.priority || a.i - b.i)
           .map((x) => x.c);
       });
     });
@@ -1218,7 +1227,7 @@
     html += `<div class="m-new-panel">
       <div class="m-panel-heading">${state.mallaView === "2027" ? "Malla nueva 2027" : `Malla de Transición Cohorte ${state.mallaView}`} <span class="m-panel-heading-sub">· ${esc(MENCIONES[mencionKey].label)}</span></div>
       <div class="m-grid-scroll">
-        <div class="m-grid-table" style="grid-template-columns: 170px ${columnKeys.map((k) => (k === "P" || k === "E" ? "56px" : "118px")).join(" ")};">
+        <div class="m-grid-table" style="grid-template-columns: 170px ${columnKeys.map((k) => (k === "P" || k === "E" ? "56px" : k >= 5 && k <= 8 ? "160px" : "118px")).join(" ")};">
           <div class="m-grid-corner"></div>
           ${columnKeys.map((k) => `<div class="m-grid-sem-header${k === "P" || k === "E" ? " narrow" : ""}">${k === "P" || k === "E" ? "" : "Sem. " + toRoman(k)}</div>`).join("")}
           ${GROUPS.map((group, gi) => {
@@ -1232,13 +1241,6 @@
               .map((k) => {
                 let courses = grid[group.id][k] || [];
                 if (courses.length === 0) return `<div class="m-grid-cell"></div>`;
-                if (group.id === "discipEspecifica" && (k === 5 || k === 6)) {
-                  const specIdx = courses.findIndex((c) => c.track === "discA" || c.track === "discB");
-                  if (specIdx !== -1) {
-                    courses = courses.slice();
-                    courses.splice(specIdx, 0, { id: `__spacer_${k}`, spacer: true });
-                  }
-                }
                 const isNarrowCol = k === "P" || k === "E";
                 const cardsHtml = courses
                   .map((course) => {
@@ -1255,17 +1257,20 @@
                       : esc(course.name);
                     const displayNamePlain = specNum ? `Especialización ${toRoman(specNum)} (${course.name})` : course.name;
                     const sourceNote = status === "convalidado" && convalidatedSource[course.id] ? `<div class="m-grid-card-source">(${esc(convalidatedSource[course.id])})</div>` : "";
+                    const cardTypeClass = specNum ? " card-spec" : electivoMatch ? " card-electivo" : "";
+                    const cardTypeColor = specNum ? "#CE0019" : electivoMatch ? "#131E29" : null;
+                    const cardTypeStyle = cardTypeColor ? `;border-left-color:${cardTypeColor};border-left-width:3px` : "";
                     if (isNarrowCol) {
                       return `
-                      <button type="button" class="m-grid-card narrow" data-new-id="${course.id}" data-editable="${editable ? "1" : "0"}"
-                        style="background:${colors.bg};border-color:${colors.border};cursor:${editable ? "pointer" : "default"}">
+                      <button type="button" class="m-grid-card narrow${cardTypeClass}" data-new-id="${course.id}" data-editable="${editable ? "1" : "0"}"
+                        style="background:${colors.bg};border-color:${colors.border};cursor:${editable ? "pointer" : "default"}${cardTypeStyle}">
                         <span class="m-status-pill" style="background:${status === "pendiente" ? "transparent" : colors.pill};border-color:${colors.pill};color:${status === "pendiente" ? colors.text : "#fff"}">${STATUS_LABEL[status]}</span>
                         <span class="m-grid-card-name">${esc(displayNamePlain)} — ${course.cred} SCT</span>
                       </button>`;
                     }
                     return `
-                    <button type="button" class="m-grid-card" data-new-id="${course.id}" data-editable="${editable ? "1" : "0"}"
-                      style="background:${colors.bg};border-color:${colors.border};cursor:${editable ? "pointer" : "default"}">
+                    <button type="button" class="m-grid-card${cardTypeClass}" data-new-id="${course.id}" data-editable="${editable ? "1" : "0"}"
+                      style="background:${colors.bg};border-color:${colors.border};cursor:${editable ? "pointer" : "default"}${cardTypeStyle}">
                       <div class="m-grid-card-top">
                         <span class="m-grid-card-name">${displayNameHtml}</span>
                         <span class="m-status-pill" style="background:${status === "pendiente" ? "transparent" : colors.pill};border-color:${colors.pill};color:${status === "pendiente" ? colors.text : "#fff"}">${STATUS_LABEL[status]}</span>
